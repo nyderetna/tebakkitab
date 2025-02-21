@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tebak Kitab: PL atau PB?</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.5);
+            background: linear-gradient(135deg, #2b2b2b, #3a3a3a);
+            text-align: center;
+        }
+        .timer {
+            font-size: 60px;
+            font-weight: bold;
+            color: #ff4444;
+            margin-bottom: 10px;
+        }
+        button {
+            margin: 10px;
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        #startButton, #restartButton {
+            background: #ff4444;
+            color: white;
+        }
+        #startButton:hover, #restartButton:hover {
+            background: #cc0000;
+        }
+        .btn-option {
+            background: #444;
+            color: white;
+        }
+        .btn-option:hover {
+            background: #666;
+        }
+        .question-box {
+            background: #222;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tebak Kitab: PL atau PB?</h1>
+        <p id="timer" class="timer" style="display: none;">30</p>
+        <button id="startButton" onclick="startGame()">Mulai</button>
+        <div id="question-box" class="question-box" style="display: none;">
+            <p id="question">Loading...</p>
+        </div>
+        <div id="buttons" style="display: none;">
+            <button class="btn-option" onclick="checkAnswer('PL')">Perjanjian Lama</button>
+            <button class="btn-option" onclick="checkAnswer('PB')">Perjanjian Baru</button>
+            <button class="btn-option" onclick="checkAnswer('Bukan keduanya')">Bukan keduanya</button>
+        </div>
+        <p id="result"></p>
+        <p id="score" style="display: none;">Skor: 0</p>
+        <button id="restartButton" onclick="startGame()" style="display: none;">Mulai Lagi</button>
+    </div>
+    
+    <script>
+        let timerInterval;
+        let score = 0;
+        let questions = [
+            { name: "Kejadian", type: "PL" }, { name: "Matius", type: "PB" },
+            { name: "Keluaran", type: "PL" }, { name: "Markus", type: "PB" },
+            { name: "Imamat", type: "PL" }, { name: "Lukas", type: "PB" },
+            { name: "Yesaya", type: "PL" }, { name: "Roma", type: "PB" },
+            { name: "2 Tawarikh", type: "PL" }, { name: "Ibrani", type: "PB" },
+            { name: "Makabe", type: "Bukan keduanya" }, { name: "Yobel", type: "Bukan keduanya" },
+            { name: "Henokh", type: "Bukan keduanya" }, { name: "Barnabas", type: "Bukan keduanya" }
+        ];
+        
+        function startGame() {
+            document.getElementById("startButton").style.display = "none";
+            document.getElementById("restartButton").style.display = "none";
+            document.getElementById("timer").style.display = "block";
+            document.getElementById("question-box").style.display = "block";
+            document.getElementById("buttons").style.display = "block";
+            document.getElementById("score").style.display = "block";
+            score = 0;
+            document.getElementById("score").textContent = "Skor: " + score;
+            nextQuestion();
+            
+            let timeLeft = 30;
+            document.getElementById("timer").textContent = timeLeft;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById("timer").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        function nextQuestion() {
+            let randomIndex = Math.floor(Math.random() * questions.length);
+            document.getElementById("question").textContent = questions[randomIndex].name;
+            document.getElementById("question").setAttribute("data-answer", questions[randomIndex].type);
+        }
+        
+        function checkAnswer(answer) {
+            let correctAnswer = document.getElementById("question").getAttribute("data-answer");
+            if (answer === correctAnswer) {
+                score++;
+                document.getElementById("result").textContent = "Benar!";
+            } else {
+                document.getElementById("result").textContent = "Salah!";
+            }
+            document.getElementById("score").textContent = "Skor: " + score;
+            nextQuestion();
+        }
+        
+        function endGame() {
+            document.getElementById("restartButton").style.display = "block";
+            document.getElementById("result").textContent = "Waktu habis! Skor akhir: " + score;
+        }
+    </script>
+</body>
+</html>
