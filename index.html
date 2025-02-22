@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Tebak Kitab: PL atau PB?</title> 
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* Menggunakan font Arial */
+            text-align: center; /* Teks rata tengah */
+            background-color: black; /* Latar belakang hitam */
+            color: white; /* Warna teks putih */
+        }
+        .container {
+            max-width: 600px; /* Lebar maksimum kontainer */
+            margin: auto; /* Membuat kontainer berada di tengah */
+            padding: 20px; /* Ruang di dalam kontainer */
+            border: 1px solid #ccc; /* Border tipis abu-abu */
+            border-radius: 10px; /* Sudut border membulat */
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); /* Efek bayangan merah */
+            background-color: black; /* Latar belakang hitam */
+        }
+        .timer {
+            font-size: 80px; /* Ukuran font besar */
+            font-weight: bold; /* Font tebal */
+            color: red; /* Warna merah */
+        }
+        button {
+            margin: 10px; /* Ruang di sekitar tombol */
+            padding: 10px 20px; /* Ruang di dalam tombol */
+            font-size: 16px; /* Ukuran font tombol */
+            cursor: pointer; /* Mengubah kursor saat diarahkan ke tombol */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tebak Kitab: PL atau PB?</h1>
+        <p id="timer" class="timer" style="display: none;">30</p>
+        <button id="startButton" onclick="startGame()">Mulai</button>
+        <p id="question" style="display: none;">Loading...</p>
+        <div id="buttons" style="display: none;">
+            <button id="btnPL" onclick="checkAnswer('PL')">Perjanjian Lama</button>
+            <button id="btnPB" onclick="checkAnswer('PB')">Perjanjian Baru</button>
+            <button id="btnNeither" onclick="checkAnswer('Bukan keduanya')">Bukan keduanya</button>
+        </div>
+        <p id="result"></p>
+        <p id="score" style="display: none;">Skor: 0</p>
+    </div>
+
+    <script>
+        const questions = [ // Array yang berisi daftar pertanyaan beserta kategorinya
+            // Perjanjian Lama (39)
+            { book: "Kejadian", category: "PL" },
+            { book: "Keluaran", category: "PL" },
+            { book: "Imamat", category: "PL" },
+            { book: "Bilangan", category: "PL" },
+            { book: "Ulangan", category: "PL" },
+            { book: "Yosua", category: "PL" },
+            { book: "Hakim-hakim", category: "PL" },
+            { book: "Rut", category: "PL" },
+            { book: "1 Samuel", category: "PL" },
+            { book: "2 Samuel", category: "PL" },
+            { book: "1 Raja-raja", category: "PL" },
+            { book: "2 Raja-raja", category: "PL" },
+            { book: "1 Tawarikh", category: "PL" },
+            { book: "2 Tawarikh", category: "PL" },
+            { book: "Ezra", category: "PL" },
+            { book: "Nehemia", category: "PL" },
+            { book: "Ester", category: "PL" },
+            { book: "Ayub", category: "PL" },
+            { book: "Mazmur", category: "PL" },
+            { book: "Amsal", category: "PL" },
+            { book: "Pengkhotbah", category: "PL" },
+            { book: "Kidung Agung", category: "PL" },
+            { book: "Yesaya", category: "PL" },
+            { book: "Yeremia", category: "PL" },
+            { book: "Ratapan", category: "PL" },
+            { book: "Yehezkiel", category: "PL" },
+            { book: "Daniel", category: "PL" },
+            { book: "Hosea", category: "PL" },
+            { book: "Yoel", category: "PL" },
+            { book: "Amos", category: "PL" },
+            { book: "Obaja", category: "PL" },
+            { book: "Yunus", category: "PL" },
+            { book: "Mikha", category: "PL" },
+            { book: "Nahum", category: "PL" },
+            { book: "Habakuk", category: "PL" },
+            { book: "Zefanya", category: "PL" },
+            { book: "Hagai", category: "PL" },
+            { book: "Zakharia", category: "PL" },
+            { book: "Maleakhi", category: "PL" },
+
+            // Perjanjian Baru (27)
+            { book: "Matius", category: "PB" },
+            { book: "Markus", category: "PB" },
+            { book: "Lukas", category: "PB" },
+            { book: "Yohanes", category: "PB" },
+            { book: "Kisah Para Rasul", category: "PB" },
+            { book: "Roma", category: "PB" },
+            { book: "1 Korintus", category: "PB" },
+            { book: "2 Korintus", category: "PB" },
+            { book: "Galatia", category: "PB" },
+            { book: "Efesus", category: "PB" },
+            { book: "Filipi", category: "PB" },
+            { book: "Kolose", category: "PB" },
+            { book: "1 Tesalonika", category: "PB" },
+            { book: "2 Tesalonika", category: "PB" },
+            { book: "1 Timotius", category: "PB" },
+            { book: "2 Timotius", category: "PB" },
+            { book: "Titus", category: "PB" },
+            { book: "Filemon", category: "PB" },
+            { book: "Ibrani", category: "PB" },
+            { book: "Yakobus", category: "PB" },
+            { book: "1 Petrus", category: "PB" },
+            { book: "2 Petrus", category: "PB" },
+            { book: "1 Yohanes", category: "PB" },
+            { book: "2 Yohanes", category: "PB" },
+            { book: "3 Yohanes", category: "PB" },
+            { book: "Yudas", category: "PB" },
+            { book: "Wahyu", category: "PB" },
+
+            // Kitab non-biblikal
+            { book: "Narnia", category: "Bukan keduanya" },
+            { book: "Hogwarts", category: "Bukan keduanya" },
+            { book: "Gondor", category: "Bukan keduanya" },
+            { book: "Avalon", category: "Bukan keduanya" }
+        ];
+
+        let currentQuestionIndex = 0; // Index pertanyaan yang sedang aktif
+        let score = 0; // Skor pemain
+        let timeLeft = 30; // Waktu yang tersisa dalam detik
+        let gameActive = false; // Status apakah game sedang aktif
+
+        /* Fungsi untuk mengacak urutan elemen array */
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) { // Looping dari belakang array
+                const j = Math.floor(Math.random() * (i + 1)); // Menghasilkan index acak
+                [array[i], array[j]] = [array[j], array[i]]; // Menukar elemen
+            }
+        }
+
+        function startGame() {
+            document.getElementById("startButton").style.display = "none"; // Menyembunyikan tombol mulai
+            document.getElementById("timer").style.display = "block"; // Menampilkan timer
+            document.getElementById("question").style.display = "block"; // Menampilkan pertanyaan
+            document.getElementById("buttons").style.display = "block"; // Menampilkan tombol jawaban
+            document.getElementById("score").style.display = "block"; // Menampilkan score
+            gameActive = true; // Mengaktifkan status game
+            score = 0; // Mereset score
+            currentQuestionIndex = 0; // Mereset index pertanyaan
+            timeLeft = 30; // Mereset waktu
+            document.getElementById("score").textContent = "Skor: 0"; // Menampilkan score awal
+            shuffle(questions); // Mengacak urutan pertanyaan
+            loadQuestion(); // Memuat pertanyaan pertama
+            startTimer(); // Memulai timer
+        }
+
+        function startTimer() {
+            const timerInterval = setInterval(() => { // Membuat interval untuk timer
+                if (timeLeft <= 0 || !gameActive) { // Jika waktu habis atau game tidak aktif
+                    clearInterval(timerInterval); // Hentikan interval
+                    endGame(); // Panggil fungsi endGame
+                } else { // Jika waktu masih ada dan game aktif
+                    document.getElementById("timer").textContent = timeLeft; // Tampilkan waktu yang tersisa
+                    timeLeft--; // Kurangi waktu
+                }
+            }, 1000); // Interval setiap 1000ms (1 detik)
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length || !gameActive) {
+                endGame();
+                return;
+            }
+            document.getElementById("question").textContent = `Kitab apakah '${questions[currentQuestionIndex].book}' termasuk?`; // Menampilkan pertanyaan
+            document.getElementById("result").textContent = ""; // Mengosongkan hasil
+        }
+
+        function checkAnswer(answer) {
+            if (!gameActive) return; // Jika game tidak aktif, keluar dari fungsi
+            
+            if (answer === questions[currentQuestionIndex].category) { // Jika jawaban benar
+                score += 10; // Tambah 10 ke skor
+                document.getElementById("result").textContent = "Benar!"; // Tampilkan "Benar!"
+            } else { // Jika jawaban salah
+                score -= 20; // Kurangi 20 dari skor
+                document.getElementById("result").textContent = `Salah! Jawaban yang benar: ${questions[currentQuestionIndex].category}`; // Tampilkan "Salah!" dan jawaban yang benar
+            }
+            
+            currentQuestionIndex++; // Pindah ke pertanyaan berikutnya
+            document.getElementById("score").textContent = "Skor: " + score; // Menampilkan skor
+            loadQuestion(); // Memuat pertanyaan berikutnya
+        }
+
+        function endGame() {
+            gameActive = false;
+            document.getElementById("question").textContent = "Permainan selesai! Skor akhir Anda: " + score;
+            document.getElementById("buttons").style.display = "none";
+        }
+    </script>
+</body>
+</html>
